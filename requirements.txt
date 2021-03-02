@@ -1,0 +1,4 @@
+psutil
+aiohttp
+pytest-aiohttp
+Flask
