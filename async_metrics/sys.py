@@ -20,13 +20,20 @@ def summary():
         "recursion_limit": os.sys.getrecursionlimit(),
         "defualt_encoding": os.sys.getdefaultencoding(),
         "cpu_info": cpu_info(),
-        "user": {
+        "user": user_info(),
+    }
+
+
+def user_info() -> dict:
+    try:
+        return {
             "login": os.getlogin(),
             "uid": os.getuid(),
             "gid": os.getgid(),
             "groups": os.getgroups(),
-        },
-    }
+        }
+    except OSError:
+        return {}
 
 
 def uptime():
