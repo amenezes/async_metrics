@@ -134,5 +134,13 @@ def process(process_id: int = os.getpid()):
             "voluntary": pid.num_ctx_switches().voluntary,
             "involuntary": pid.num_ctx_switches().involuntary,
         },
-        "childrens": [cpid.pid for cpid in pid.children(recursive=True)],
+        "childrens": [
+            {
+                cpid.pid: {
+                    "name": cpid.name(),
+                    "cmdline": cpid.cmdline(),
+                }
+            }
+            for cpid in pid.children(recursive=True)
+        ],
     }
