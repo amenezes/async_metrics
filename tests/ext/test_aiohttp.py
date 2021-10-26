@@ -4,13 +4,6 @@ from aiohttp import web
 from async_metrics.ext.aiohttp import setup_async_metrics
 
 
-@pytest.fixture
-async def aiohttp_app():
-    app = web.Application()
-    setup_async_metrics(app)
-    return app
-
-
 @pytest.mark.parametrize(
     "uri,status_code,mimetype",
     [
@@ -27,9 +20,11 @@ async def aiohttp_app():
     ],
 )
 async def test_aiohttp_integration(
-    aiohttp_client, aiohttp_app, uri, status_code, mimetype
+    aiohttp_client, uri, status_code, mimetype
 ):
-    client = await aiohttp_client(aiohttp_app)
+    app = web.Application()
+    setup_async_metrics(app)
+    client = await aiohttp_client(app)
     resp = await client.get(uri)
     assert resp.status == status_code
     assert resp.content_type == mimetype
