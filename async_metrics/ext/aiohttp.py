@@ -190,7 +190,7 @@ def _routes(request):
             "name": route.name or "",
             "method": route.method,
             "path": sorted(route.get_info().values()),
-            "handler": route.handler.__doc__,
+            "description": route.handler.__doc__,
         }
         for route in request.app.router.routes()
     ]

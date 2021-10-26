@@ -20,7 +20,7 @@ endif
 
 tests:
 	@echo "> unittest"
-	python -m pytest -v --cov-report xml --cov-report term --cov=async_metrics tests
+	python -m pytest --durations=10 -vv --no-cov-on-fail --color=yes --cov-report xml --cov-report term --cov=async_metrics tests
 
 docs:
 	@echo "> generate project documentation..."
@@ -57,7 +57,7 @@ ifeq ($(TRAVIS_PULL_REQUEST), false)
 	./cc-test-reporter upload-coverage -i codeclimate.json -r $$CC_TEST_REPORTER_ID
 endif
 
-all: ci
+all: install-deps ci
 
 
 .PHONY: lint tests docs install-deps ci all
