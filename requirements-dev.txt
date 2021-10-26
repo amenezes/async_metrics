@@ -7,5 +7,6 @@ tox
 pytest
 pytest-cov
 pytest-asyncio
+types-setuptools
 tox-asdf
 pytest-aiohttp
