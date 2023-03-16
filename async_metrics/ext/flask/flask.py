@@ -17,10 +17,10 @@ def setup_async_metrics(app, name: str = "async_metrics"):
 
 
 def configure_routes(bp, name):
-    @bp.route(f"/{name}/summary", methods=["GET", "HEAD"])
+    @bp.route(f"/{name}/dashboard", methods=["GET", "HEAD"])
     def summary():
         return render_template(
-            "summary.html",
+            "dashboard.html",
             version=async_metrics.__version__,
             url=f"{request.scheme}://{request.host}/async_metrics/routes",
         )
@@ -32,6 +32,10 @@ def configure_routes(bp, name):
                 "system": async_metrics.sys.all(),
             }
         )
+
+    @bp.route(f"/{name}/asyncio", methods=["GET", "HEAD"])
+    def asyncio():
+        return jsonify({"asyncio": async_metrics.asyncio.all()})
 
     @bp.route(f"/{name}/system", methods=["GET", "HEAD"])
     def system():
@@ -89,6 +93,18 @@ def configure_routes(bp, name):
                 "method": "GET",
                 "path": "/async_metrics/all",
                 "description": "Show information about system environment.",
+            },
+            {
+                "name": "async_metrics_summary",
+                "method": "HEAD",
+                "path": "/async_metrics/asyncio",
+                "description": "Show information about async and system environment.",
+            },
+            {
+                "name": "async_metrics_summary",
+                "method": "GET",
+                "path": "/async_metrics/asyncio",
+                "description": "Show information about async and system environment.",
             },
             {
                 "name": "async_metrics_system",

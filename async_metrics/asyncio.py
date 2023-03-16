@@ -7,7 +7,13 @@ from async_metrics.utils import measure_time_elapsed
 
 def loop_info() -> List[Dict]:
     """Show information about running loop."""
-    loop = asyncio.get_event_loop()
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            return [dict(running=False, policy=None, exception_handler=None)]
     return [
         {
             "running": loop.is_running(),
@@ -15,16 +21,6 @@ def loop_info() -> List[Dict]:
             "exception_handler": loop.get_exception_handler(),
         }
     ]
-
-
-def summary() -> Dict:
-    try:
-        return {
-            "tasks": len(asyncio.all_tasks()),
-            "watcher": asyncio.get_child_watcher().__doc__.split(".")[0],  # type: ignore
-        }
-    except RuntimeError:
-        return {}
 
 
 def current_task_info() -> Dict:
@@ -36,10 +32,12 @@ def current_task_info() -> Dict:
 
 
 def tasks_info() -> List[Dict]:
+    resp = []
     try:
-        return [_task_info(task) for task in asyncio.all_tasks()]
+        resp = [_task_info(task) for task in asyncio.all_tasks()]
     except RuntimeError:
-        return []
+        pass
+    return resp
 
 
 def _task_info(task) -> Dict:
@@ -56,9 +54,13 @@ def _task_info(task) -> Dict:
 
 @measure_time_elapsed
 def all() -> Dict:
+    try:
+        tasks_number = len(asyncio.all_tasks())
+    except RuntimeError:
+        tasks_number = 0
     return {
-        "summary": summary(),
         "loop": loop_info(),
         "current_task": current_task_info(),
+        "tasks_number": tasks_number,
         "tasks": tasks_info(),
     }

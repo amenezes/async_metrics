@@ -1,11 +1,11 @@
 .DEFAULT_GOAL := about
-VERSION := $(shell cat async_metrics/__version__.py | cut -d'"' -f 2)
+VERSION := $(shell cat async_metrics/__init__.py | grep '__version__ =' | cut -d'"' -f2)
 
 lint:
 ifeq ($(SKIP_STYLE), )
 	@echo "> running isort..."
-	isort async_metrics/
-	isort tests/
+	isort async_metrics
+	isort tests
 	isort setup.py
 	@echo "> running black..."
 	black async_metrics
@@ -20,7 +20,7 @@ endif
 
 tests:
 	@echo "> unittest"
-	python -m pytest -v --cov-report xml --cov-report term --cov=async_metrics tests
+	python -m pytest -vv --no-cov-on-fail --color=yes --cov-report xml --cov-report term --cov=async_metrics tests
 
 docs:
 	@echo "> generate project documentation..."

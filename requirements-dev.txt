@@ -9,3 +9,6 @@ pytest-cov
 pytest-asyncio
 tox-asdf
 pytest-aiohttp
+types-setuptools
+types-requests
+build

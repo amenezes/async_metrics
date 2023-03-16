@@ -13,7 +13,7 @@ def test_partitions():
 
 def test_process():
     resp = async_metrics.sys.process()
-    assert len(resp) == 11
+    assert len(resp) == 10
 
 
 def test_python():

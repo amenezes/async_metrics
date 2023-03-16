@@ -14,7 +14,7 @@ async def aiohttp_app():
 @pytest.mark.parametrize(
     "uri,status_code,mimetype",
     [
-        ("/async_metrics/summary", 200, "text/html"),
+        ("/async_metrics/dashboard", 200, "text/html"),
         ("/async_metrics/all", 200, "application/json"),
         ("/async_metrics/asyncio", 200, "application/json"),
         ("/async_metrics/system", 200, "application/json"),
@@ -38,7 +38,7 @@ async def test_aiohttp_integration(
 @pytest.mark.parametrize(
     "uri,status_code,mimetype",
     [
-        ("/custom/summary", 200, "text/html"),
+        ("/custom/dashboard", 200, "text/html"),
         ("/custom/all", 200, "application/json"),
         ("/custom/asyncio", 200, "application/json"),
         ("/custom/system", 200, "application/json"),

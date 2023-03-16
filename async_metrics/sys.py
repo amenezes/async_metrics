@@ -18,7 +18,7 @@ def summary():
         "architecture": " ".join(list(platform.architecture())),
         "system": platform.system(),
         "recursion_limit": os.sys.getrecursionlimit(),
-        "defualt_encoding": os.sys.getdefaultencoding(),
+        "default_encoding": os.sys.getdefaultencoding(),
         "cpu_info": cpu_info(),
         "user": user_info(),
     }
@@ -117,7 +117,6 @@ def partitions():
     return resp
 
 
-@measure_time_elapsed
 def process(process_id: int = os.getpid()):
     """Show information about current process."""
     pid = psutil.Process(process_id)

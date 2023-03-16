@@ -1,3 +1,5 @@
 psutil
 aiohttp
 Flask
+rich
+click

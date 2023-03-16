@@ -11,7 +11,7 @@ def setup_async_metrics(
     monitoring = web.Application(middlewares=[restrict_access])
     monitoring.add_routes(
         [
-            web.get("/summary", _main_handler, name="async_metrics_summary"),
+            web.get("/dashboard", _main_handler, name="async_metrics_summary"),
             web.get("/all", _metrics_handler, name="async_metrics_all"),
             web.get(
                 "/asyncio",
@@ -56,16 +56,16 @@ def setup_async_metrics(
 
 
 async def _main_handler(request: web.Request):
-    """Show async_metrics available."""
+    """Show async_metrics endpoints available."""
     routes_path = request.app.router["async_metrics_routes"].url_for()
     url = f"{request.host}{routes_path}"
     body = f"""
     <html>
     <head>
       <meta charset="UTF-8">
-      <title>aysnc_metrics</title>
-      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css">
+      <title>async_metrtics - Dashboard</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
     </head>
     <body class="bg-light">
       <div class="container">
@@ -86,13 +86,14 @@ async def _main_handler(request: web.Request):
             <br />
             <div class="container">
                 <div class="bd-callout bd-callout-info">
-                    <h5 id="conveying-meaning-to-assistive-technologies"><p>Endpoints</p></h5>
+                    <h5 id="conveying-meaning-to-assistive-technologies"><p>Dashboard</p></h5>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-striped"></table>
                 </div>
             </div>
         </div>
+
       <script>
         async function start() {{
             let response = await fetch('http://{url}');
@@ -113,20 +114,34 @@ async def _main_handler(request: web.Request):
             for (let key of Object.keys(links[0])) {{
                 let th = document.createElement("th");
                 let text = document.createTextNode(key);
+
                 th.appendChild(text);
                 row.appendChild(th);
             }}
         }}
         start();
       </script>
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
     </body>
     </html>
     """
     return web.Response(body=body, content_type="text/html")
 
 
-async def _metrics_handler(request: web.Request):
+def _routes(request):
+    return [
+        {
+            "Name": route.name or "",
+            "Method": route.method,
+            "Path": sorted(route.get_info().values()),
+            "Handler": route.handler.__doc__,
+        }
+        for route in request.app.router.routes()
+    ]
+
+
+async def _metrics_handler(request: web.Request) -> web.Response:
     """Show information about async and system environment."""
     return web.json_response(
         {
@@ -136,44 +151,44 @@ async def _metrics_handler(request: web.Request):
     )
 
 
-async def _asyncio_metrics_handler(request: web.Request):
+async def _asyncio_metrics_handler(request: web.Request) -> web.Response:
     """Show summary information about async environment."""
     return web.json_response({"asyncio": async_metrics.asyncio.all()})
 
 
-async def _system_metrics_handler(request: web.Request):
+async def _system_metrics_handler(request: web.Request) -> web.Response:
     """Show information about system environment."""
     return web.json_response({"system": async_metrics.sys.all()})
 
 
-async def _python_metrics_handler(request: web.Request):
+async def _python_metrics_handler(request: web.Request) -> web.Response:
     """Show information about current python environment."""
     return web.json_response(async_metrics.sys.python())
 
 
-async def _process_metrics_handler(request: web.Request):
+async def _process_metrics_handler(request: web.Request) -> web.Response:
     """Show summary information about application process."""
     return web.json_response(async_metrics.sys.process())
 
 
-async def _partitions_metrics_handler(request: web.Request):
+async def _partitions_metrics_handler(request: web.Request) -> web.Response:
     """Show summary information about disk partition."""
     return web.json_response(async_metrics.sys.partitions())
 
 
-async def _dependencies_metrics_handler(request: web.Request):
+async def _dependencies_metrics_handler(request: web.Request) -> web.Response:
     """Show applications dependencies."""
     return web.json_response(async_metrics.sys.packages())
 
 
-async def _routes_handler(request: web.Request):
+async def _routes_handler(request: web.Request) -> web.Response:
     """Show async_metrics HTTP routes available."""
     return web.json_response(
         _routes(request), headers={"Access-Control-Allow-Origin": "*"}
     )
 
 
-async def _about_handler(request: web.Request):
+async def _about_handler(request: web.Request) -> web.Response:
     """Show information about async_metrics."""
     return web.json_response(
         {
@@ -182,15 +197,3 @@ async def _about_handler(request: web.Request):
             "issues": "https://github.com/amenezes/async_metrics/issues",
         }
     )
-
-
-def _routes(request):
-    return [
-        {
-            "name": route.name or "",
-            "method": route.method,
-            "path": sorted(route.get_info().values()),
-            "handler": route.handler.__doc__,
-        }
-        for route in request.app.router.routes()
-    ]
